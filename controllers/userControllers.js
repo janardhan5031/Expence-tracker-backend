@@ -55,7 +55,9 @@ exports.sign_in = (req,res,next) =>{
 
                     const token = jwt.sign(user[0].id,process.env.SECRETE_KEY);
 
-                    res.json({token:token,success:true,msg:'successfully logged in'});
+                    const membership = user[0].isPremiumUser;
+                    console.log(membership)
+                    res.json({token:token,membership:membership,success:true,msg:'successfully logged in'});
                 }else{
                     res.status(404).json({success:false,msg:'password do not matched'})
                 }
