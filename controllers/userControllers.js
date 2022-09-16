@@ -27,7 +27,7 @@ exports.signupPage = (req,res,next) =>{
                     res.json({msg:'unable hash the password'});
                 }
                 //console.log(hashed_str);
-                Users.create({name,mail,number,password:hashed_str,isPremiumUser:false})
+                Users.create({name,mail,number,password:hashed_str,isPremiumUser:false,expense:0})
                 .then(result =>{
                     res.status(201).json({msg:'successfully created new user'});
                 })
@@ -68,4 +68,18 @@ exports.sign_in = (req,res,next) =>{
         }
    })
    .catch(err =>res.status(404).send({error:err,msg:'something went wrong'}));
+}
+
+exports.getAllUsersExpenses =(req,res,next) =>{
+    Users.findAll({attributes:['id','name','expense']})
+    .then(users =>{
+        return users.sort((a,b)=>{
+            return a.dataValues.expense -b.dataValues.expense   // assending order
+        }).map(value=>value.dataValues);
+    })
+    .then(list =>{
+        res.json({data:list,curUsr:req.user.id});
+    })
+    
+    .catch(err => console.log(err));
 }

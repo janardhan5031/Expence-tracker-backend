@@ -9,5 +9,6 @@ router.post('/signup',userCtrl.signupPage);
 
 router.post(`/sign-in`,userCtrl.sign_in);
 
+router.get('/getLeadership',authCtrl.userAuthentication,userCtrl.getAllUsersExpenses);
 
 module.exports = router;
