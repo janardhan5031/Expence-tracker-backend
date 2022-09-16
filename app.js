@@ -17,13 +17,12 @@ app.use(bodyParser.json());
 const database = require('./util/database');
 
 const userRouters = require('./routes/UserRouters');
+const expenesRouter = require('./routes/expenses');
 const orderRoutes = require('./routes/purchases');
 
 app.use(userRouters);
 app.use('/purchase',orderRoutes);
-app.get('/jani',(req,res,next)=>{
-    res.send({msg:'jani'});
-})
+app.use('/expenses',expenesRouter);
 
 // associations
 user.hasMany(expenses);

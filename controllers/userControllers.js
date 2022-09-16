@@ -27,7 +27,7 @@ exports.signupPage = (req,res,next) =>{
                     res.json({msg:'unable hash the password'});
                 }
                 //console.log(hashed_str);
-                Users.create({name,mail,number,password:hashed_str})
+                Users.create({name,mail,number,password:hashed_str,isPremiumUser:false})
                 .then(result =>{
                     res.status(201).json({msg:'successfully created new user'});
                 })
@@ -56,7 +56,7 @@ exports.sign_in = (req,res,next) =>{
                     const token = jwt.sign(user[0].id,process.env.SECRETE_KEY);
 
                     const membership = user[0].isPremiumUser;
-                    console.log(membership)
+                    //console.log(membership)
                     res.json({token:token,membership:membership,success:true,msg:'successfully logged in'});
                 }else{
                     res.status(404).json({success:false,msg:'password do not matched'})
@@ -68,16 +68,4 @@ exports.sign_in = (req,res,next) =>{
         }
    })
    .catch(err =>res.status(404).send({error:err,msg:'something went wrong'}));
-}
-
-exports.addExpenses =(req,res,next) =>{
-    const event = req.body.event;
-    const price = Number(req.body.price);
-    req.user.createExpense({event,price})
-    .then(result =>{
-        res.status(201).json({success:true,msg:'sucessfully expense added'})
-    })
-    .catch(err =>{
-        res.json({sucess:false,msg:'unable to add expense', error:er})
-    })
 }
