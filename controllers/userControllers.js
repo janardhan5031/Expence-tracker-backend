@@ -83,3 +83,14 @@ exports.getAllUsersExpenses =(req,res,next) =>{
     
     .catch(err => console.log(err));
 }
+
+exports.getOne =(req,res,next) => {
+    const id = req.params.id;
+    //console.log(id);
+    Users.findByPk(id,{attributes:['id','expense']})
+    .then(user =>{
+        res.json(user)
+    }).catch(err =>{
+        res.status(404).send({status:'failed',error:err,msg:'something went wrong'})
+    })
+}
