@@ -6,8 +6,8 @@ exports.purchaseMembership = (req,res,next)=>{
    // console.log('jani');
     try{
         var instance = new razorpay({
-            key_id:'rzp_test_llsCzcV3d1VX4a',
-            key_secret:'LGWbPzwTAz93lu5tS1kXEopu'
+            key_id: process.env.RAZORPAY_KEY_ID,    // key id stored in .env file
+            key_secret: process.env.RAZORPAY_KEY_SECRET    // key secret 
         });
     
         // creating order with this instance

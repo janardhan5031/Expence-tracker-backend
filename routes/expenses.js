@@ -8,6 +8,8 @@ router.post('/add',auth.userAuthentication,expenseControl.add);
 
 router.get('/get-all',auth.userAuthentication,expenseControl.getAll);
 
+router.get('/download',auth.userAuthentication,expenseControl.downloadExpenses);
+
 router.post('/delete',auth.userAuthentication,expenseControl.deleteExpense);
 
 module.exports = router;

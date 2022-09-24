@@ -1,5 +1,6 @@
 const Users = require('../models/Users');
-const jwt = require('jsonwebtoken');
+const jwt = require('jsonwebtoken');    //  libray for web tokens
+
 
 const bcrypt = require('bcrypt');   // to encrypt the passwords
 
@@ -57,18 +58,19 @@ exports.sign_in = (req,res,next) =>{
 
                     const membership = user[0].isPremiumUser;
                     //console.log(membership)
-                    res.json({token:token,membership:membership,success:true,msg:'successfully logged in'});
+                    res.status(201).json({token:token,membership:membership,success:true,msg:'successfully logged in'});
                 }else{
-                    res.status(404).json({success:false,msg:'password do not matched'})
+                    res.json({success:false,msg:'password do not matched'})
                 }
             })
         }
         else{
-            res.json({msg:'user not found'});
+            res.json({msg:'user not found. pls sign up'});
         }
    })
-   .catch(err =>res.status(404).send({error:err,msg:'something went wrong'}));
+   .catch(err =>res.send({error:err,msg:'something went wrong'}));
 }
+
 
 exports.getAllUsersExpenses =(req,res,next) =>{
     Users.findAll({attributes:['id','name','expense']})
