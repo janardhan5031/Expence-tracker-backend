@@ -10,7 +10,9 @@ const expenses = database.define('expenses',{
         primaryKey:true
     },
     event:Sequelize.STRING,
-    price:Sequelize.INTEGER
+    price:Sequelize.INTEGER,
+    Income:Sequelize.BOOLEAN,
+    Expense:Sequelize.BOOLEAN
 });
 
 module.exports = expenses;

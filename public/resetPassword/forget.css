@@ -34,3 +34,14 @@ body{
     display: flex;
     justify-content: center;
 }
+#reset_btn{
+    background-color: rebeccapurple;
+    color: white;
+    margin-top: 1rem;
+    width: 5rem;
+    height: 2rem;
+    border-radius: 1rem;
+    border-color: none;
+    font-family: Verdana, Geneva, Tahoma, sans-serif;
+    cursor: pointer;
+}

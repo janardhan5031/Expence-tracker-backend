@@ -73,10 +73,10 @@ exports.sign_in = (req,res,next) =>{
 
 
 exports.getAllUsersExpenses =(req,res,next) =>{
-    Users.findAll({attributes:['id','name','expense']})
+    Users.findAll({attributes:['id','name','TotalExpense']})
     .then(users =>{
         return users.sort((a,b)=>{
-            return a.dataValues.expense -b.dataValues.expense   // assending order
+            return a.dataValues.TotalExpense -b.dataValues.TotalExpense   // assending order
         }).map(value=>value.dataValues);
     })
     .then(list =>{

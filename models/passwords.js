@@ -12,4 +12,4 @@ const passwords = database.define('passwords',{
     active:sequelize.BOOLEAN
 });
 
-module.exports=passwords;
+module.exports=passwords;   

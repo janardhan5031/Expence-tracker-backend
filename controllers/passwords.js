@@ -53,7 +53,19 @@ exports.forgetpassword = (req,res,next) =>{
 };
 
 exports.getresetpassword =(req,res,next)=>{
-    res.sendFile(path.join(__dirname,'../public/resetPassword/forget.html'))
+    const urlStr = req.params.urlStr;
+    passwords.findAll({where:{passwordURL:urlStr}})
+    .then((password_url)=>{
+        if(password_url.length>0 && password_url[0].active){
+            
+            res.sendFile(path.join(__dirname,'../public/resetPassword/forget.html'))
+        }else{
+            res.status(404).json({msg:'this url is exipred'})
+        }
+    })
+    .catch(err =>{
+        res.sendFile(path.join(__dirname,'../public/views/page_404.html'))
+    })
 }
 
 exports.postresetpassword = (req,res,next) =>{
@@ -63,7 +75,7 @@ exports.postresetpassword = (req,res,next) =>{
     .then(password_url =>{
         password_URL=password_url[0].passwordURL;
         const userid = password_url[0].UserId;
-        const password = req.body
+        const password = req.body.new_password;
         console.log('======', password)
         // hash the given password with salting
         bcrypt.genSalt(10, ((err,salt_string) =>{
@@ -79,7 +91,10 @@ exports.postresetpassword = (req,res,next) =>{
                 .then(() =>{
                     passwords.update({active:false},{where:{passwordURL:password_URL}})
                     .then(result =>{
-                        return res.json({msg:'successfully updated password'})})
+                        return res.json({msg:'successfully updated password',
+                        url:'http://localhost:4000/public/frontEnd/sign_in/sign_in.html'
+                        })
+                    })
                     .catch(err =>res.json({msg:"unable to de-activate reset url"}));
                 })
                 .catch(err=>{
