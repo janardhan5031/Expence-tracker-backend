@@ -9,6 +9,11 @@ const bodyParser = require('body-parser');
 const helmet = require('helmet');
 const morgan = require('morgan');
 
+const app =express(); 
+app.use(cors());
+dotenv.config();    // configuring the dot .enve before we use it
+
+
 const user = require('./models/Users');
 const expenses = require('./models/Expences');
 const order = require('./models/orders');
@@ -16,9 +21,6 @@ const password = require('./models/passwords');
 const file = require('./models/expenseFiles');
 
 
-const app =express(); 
-app.use(cors());
-dotenv.config();    // configuring the dot .enve before we use it
 
 //app.use(helmet());  // using the this module before taking incoming requests
 
