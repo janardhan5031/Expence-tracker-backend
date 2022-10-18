@@ -1,18 +1,34 @@
-const Sequelize = require('sequelize');
+const mongoose = require('mongoose');
 
-const database = require('../util/database');
+const Schema = mongoose.Schema;
 
-const expenses = database.define('expenses',{
-    id:{
-        type:Sequelize.INTEGER,
-        autoIncrement:true,
-        allowNull:false,
-        primaryKey:true
-    },
-    event:Sequelize.STRING,
-    price:Sequelize.INTEGER,
-    Income:Sequelize.BOOLEAN,
-    Expense:Sequelize.BOOLEAN
-});
+const Expense = new Schema({
+    event:{ type: String, required : true },
+    price : { type: Number , required: true},
+    Income: { type: Boolean , required: true},
+    Expense: { type: Boolean , required: true},
+    Date :{ type: String , required: true}
+})
 
-module.exports = expenses;
+module.exports = mongoose.model('Expense',Expense)
+
+
+
+// const Sequelize = require('sequelize');
+
+// const database = require('../util/database');
+
+// const expenses = database.define('expenses',{
+//     id:{
+//         type:Sequelize.INTEGER,
+//         autoIncrement:true,
+//         allowNull:false,
+//         primaryKey:true
+//     },
+//     event:Sequelize.STRING,
+//     price:Sequelize.INTEGER,
+//     Income:Sequelize.BOOLEAN,
+//     Expense:Sequelize.BOOLEAN
+// });
+
+// module.exports = expenses;

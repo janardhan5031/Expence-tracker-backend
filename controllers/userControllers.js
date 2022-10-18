@@ -1,3 +1,4 @@
+
 const Users = require('../models/Users');
 const jwt = require('jsonwebtoken');    //  libray for web tokens
 
@@ -7,7 +8,7 @@ const bcrypt = require('bcrypt');   // to encrypt the passwords
 exports.signupPage = (req,res,next) =>{
     // check if any user exists with this mail id or not
    const mail = req.body.mail;
-   Users.findAll({where:{mail:mail}})
+   Users.find({mail:mail})
    .then(users =>{
     const user =users[0];
     if(user){
@@ -28,8 +29,17 @@ exports.signupPage = (req,res,next) =>{
                     res.json({msg:'unable hash the password'});
                 }
                 //console.log(hashed_str);
-                Users.create({name,mail,number,password:hashed_str,isPremiumUser:false,expense:0})
+
+                const new_user = new Users({
+                    name, mail, number, password:hashed_str,
+                    isPremiumUser : false,
+                    TotalIncome: 0,
+                    TotalExpense: 0,
+                    UserExpenses :[]
+                })
+                Users.create(new_user)
                 .then(result =>{
+                    console.log(result)
                     res.status(201).json({msg:'successfully created new user'});
                 })
                 .catch(err => res.json({success:false,error:err}));
@@ -44,8 +54,9 @@ exports.signupPage = (req,res,next) =>{
 
 exports.sign_in = (req,res,next) =>{
    const {mail,password} =  req.body;
-   Users.findAll({where:{mail:mail}})
+   Users.find({mail:mail})
    .then(user =>{
+    console.log(user)
         if(user.length>0){
             bcrypt.compare(password,user[0].password,(err,success)=>{
                 if(err){
@@ -54,7 +65,10 @@ exports.sign_in = (req,res,next) =>{
                 if(success){
                     // if password is mactched, create new token for this user and send it
 
-                    const token = jwt.sign(user[0].id,process.env.SECRETE_KEY);
+                    const userId = (user[0].id)
+                    // console.log(userId)
+
+                    const token = jwt.sign(userId,process.env.SECRETE_KEY);
 
                     const membership = user[0].isPremiumUser;
                     //console.log(membership)
@@ -73,11 +87,14 @@ exports.sign_in = (req,res,next) =>{
 
 
 exports.getAllUsersExpenses =(req,res,next) =>{
-    Users.findAll({attributes:['id','name','TotalExpense']})
+    Users.find()
+    .select('name TotalExpense')
+    .exec()
     .then(users =>{
+        console.log(users)
         return users.sort((a,b)=>{
-            return a.dataValues.TotalExpense -b.dataValues.TotalExpense   // assending order
-        }).map(value=>value.dataValues);
+            return a.TotalExpense -b.TotalExpense   // assending order
+        });
     })
     .then(list =>{
         res.json({data:list,curUsr:req.user.id});
@@ -89,7 +106,9 @@ exports.getAllUsersExpenses =(req,res,next) =>{
 exports.getOne =(req,res,next) => {
     const id = req.params.id;
     //console.log(id);
-    Users.findByPk(id,{attributes:['id','expense']})
+    // Users.findByPk(id,{attributes:['id','expense']})
+    Users.findById(id)
+    .select('_id TotalExpense')
     .then(user =>{
         res.json(user)
     }).catch(err =>{

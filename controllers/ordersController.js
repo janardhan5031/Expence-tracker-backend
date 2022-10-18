@@ -1,5 +1,6 @@
 const razorpay = require('razorpay');
-const orders = require('../models/orders');
+const Orders = require('../models/orders');
+const User = require('../models/Users');
 
 exports.purchaseMembership = (req,res,next)=>{
     // declearing and initializing razorpay instace
@@ -19,11 +20,19 @@ exports.purchaseMembership = (req,res,next)=>{
             if(err){
                 return res.status(400).send({status:'failed'});
             }
-            req.user.createOrder({orderId:order.id,status:'pending'})
+            console.log(order)
+
+            Orders.create({ OrderId : order.id.toString() , UserId: req.user._id })
             .then(()=>{
                 res.json({order,key_id : instance.key_id});
             })
             .catch(err =>{throw new Error(err)});
+
+            // req.user.createOrder({orderId:order.id,status:'pending'})
+            // .then(()=>{
+            //     res.json({order,key_id : instance.key_id});
+            // })
+            // .catch(err =>{throw new Error(err)});
         })
     }catch(err){
         console.log(err);
@@ -33,21 +42,20 @@ exports.purchaseMembership = (req,res,next)=>{
 exports.membershipStatus = (req,res,next) =>{
     const orderId = req.body.orderId;
 
-    orders.findOne({where:{orderId:orderId}})
-    .then(order =>{
-        order.update({paymentId:req.body.payment_id,status:'success'})
-        .then(()=>{
-            //console.log(req.user)
-           return req.user.update({isPremiumUser:true})
-        })
-        .then(premiumUser =>{
-            return res.status(201).json({staus:'success',msg:'tansaction successfull'})
-        })
-        .catch(err =>{
-            throw new Error(err);
-        })
+    Orders.updateOne(
+        {OrderId:orderId},
+        {PaymentId:req.body.payment_id,Status:'success'})
+    .then(()=>{
+        //console.log(req.user)
+       return User.updateOne(
+        {_id: req.user._id},
+        {isPremiumUser:true})
+    })
+    .then(premiumUser =>{
+        return res.status(201).json({staus:'success',msg:'tansaction successfull'})
     })
     .catch(err =>{
-        res.status(403).json({msd:'something went wrong'});
+        throw new Error(err);
     })
+    
 }

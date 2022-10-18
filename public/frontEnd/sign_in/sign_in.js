@@ -17,7 +17,7 @@ sign_in.addEventListener('click', (e) =>{
     
     if(email && password){
         //console.log(obj)
-        axios.post(`http://13.233.252.66/sign-in`,obj)   // if we try to send the obj through get, we need to stringify that obj. then only we can parse that object and use it.
+        axios.post(`http://localhost:4000/sign-in`,obj)   // if we try to send the obj through get, we need to stringify that obj. then only we can parse that object and use it.
         .then(result =>{
             if(result.data.msg && result.status ===201){
                 //console.log(result);
@@ -141,9 +141,9 @@ function getAllPreviousFiles(){
     const token = localStorage.getItem('token');
 
     
-    axios.get(`http://13.233.252.66/files/getAllFiles`,{headers:{"authorization":token}})
+    axios.get(`http://localhost:4000/files/getAllFiles`,{headers:{"authorization":token}})
     .then(result=>{
-        //console.log(result);
+        console.log(result);
 
         let list_of_files = document.getElementById('list_of_files');
         list_of_files.innerHTML ='';
@@ -161,7 +161,7 @@ function getAllPreviousFiles(){
                 ptr++;
             }
 
-            const ele = `<li>${fileName}<button type="button" id=${file.id} class="this_file_download">download </button></li>`;
+            const ele = `<li>${fileName}<button type="button" id=${file._id} class="this_file_download">download </button></li>`;
             list_of_files.innerHTML += ele;
 
         })
@@ -173,12 +173,13 @@ function getAllPreviousFiles(){
 function getAllExpenses(){
     const token = localStorage.getItem('token');
 
-    axios.get('http://13.233.252.66/expenses/getAllExpenses',{headers:{"authorization":token}})
+    axios.get('http://localhost:4000/expenses/getAllExpenses',{headers:{"authorization":token}})
     .then(result =>{
         console.log(result)
-        if(result.data.length>0){
-            let month = result.data[0].createdAt.toString().slice(0,7);
-            let year = result.data[0].createdAt.toString().slice(0,4);
+        // console.log(result.data.UserExpenses[0].ExpenseId.Date)
+        if(result.data.UserExpenses.length>0){
+            let month = result.data.UserExpenses[0].ExpenseId.Date.slice(0,7);
+            let year = result.data.UserExpenses[0].ExpenseId.Date.slice(0,4)
             
             let monthly_exp_amount=0;
             let monthly_income_amount=0;
@@ -208,19 +209,24 @@ function getAllExpenses(){
                 <th>Expense</th>
                 <th>Balance</th>
             </tr>`;
-            const length = result.data.length;
-            result.data.forEach((data,index) =>{
+            const length = result.data.UserExpenses.length;
+            // console.log(length)
 
-            const data_month = data.createdAt.toString().slice(0,7);
+            // displaying the table content
+            result.data.UserExpenses.forEach((data,index) =>{
+
+            console.log(data.ExpenseId.Date)
+
+            const data_month = data.ExpenseId.Date.slice(0,7);
             const data_year = data_month.slice(0,4);
 
             // inserting into daily expense table
             let Expense ='',Income='';
-            data.Expense? Expense=data.price :Income=data.price
+            data.ExpenseId.Expense? Expense=data.ExpenseId.price :Income=data.ExpenseId.price
 
             const daily_ele =`<tr id="daily_exp_row">
-                                <td>${data.createdAt.toString().slice(0,10)}</td>
-                                <td>${data.event}</td>
+                                <td>${data.ExpenseId.Date.slice(0,10)}</td>
+                                <td>${data.ExpenseId.event}</td>
                                 <td>${Income}</td>
                                 <td>${Expense}</td>
                                 </tr>`    ;        
@@ -237,10 +243,11 @@ function getAllExpenses(){
                 monthly_exp_amount=0;
                 monthly_income_amount=0;
             }
-            data.Expense ? monthly_exp_amount += data.price : monthly_income_amount+=data.price;
+            data.ExpenseId.Expense ? monthly_exp_amount += data.ExpenseId.price : monthly_income_amount+=data.ExpenseId.price;
             if(year < data_year){
                 yearly_report(year,yearly_exp_amount,yearly_income_amount)
             }
+
             if(index===length-1 && month ===data_month && year===data_year){
                 yearly_exp_amount += monthly_exp_amount;
                 yearly_income_amount += monthly_income_amount;
@@ -287,7 +294,7 @@ document.getElementById('list_of_files').addEventListener('click',(event)=>{
     if(event.target.className==='this_file_download'){
         const token = localStorage.getItem('token');
         const fileId = event.target.id;
-        axios.get(`http://13.233.252.66/files/getOneFile/${fileId}`,{headers:{"authorization":token}})
+        axios.get(`http://localhost:4000/files/getOneFile/${fileId}`,{headers:{"authorization":token}})
         .then(result =>{    
             //console.log(result);
             if(result.status === 200){
@@ -306,7 +313,7 @@ document.getElementById('list_of_files').addEventListener('click',(event)=>{
 // downoading all expenses by clicking on download btn
 document.getElementById('download_btn').addEventListener('click',()=>{
     const token = localStorage.getItem('token');
-    axios.get(`http://13.233.252.66/expenses/download`,{headers:{"authorization":token}})
+    axios.get(`http://localhost:4000/expenses/download`,{headers:{"authorization":token}})
     .then(result =>{    
         if(result.status === 200){
             var a = document.createElement('a');
@@ -325,7 +332,7 @@ function forgetPassword(){
     document.getElementById('forget_pswd').addEventListener('click',(e)=>{
         e.preventDefault();
         const email = document.getElementById('rcvry_email').value;
-        axios.post('http://13.233.252.66/password/forgetpassword',{email:email})
+        axios.post('http://localhost:4000/password/forgetpassword',{email:email})
         .then((result)=>{
             //console.log(result)
             window.alert(result.data.msg);
@@ -351,13 +358,14 @@ function display_daily_expenses(){
     const token = localStorage.getItem('token');
 
     function expense(page_num){
-        axios.get('http://13.233.252.66/expenses/get-all?page=0',{headers:{"authorization":token}})
+        axios.get('http://localhost:4000/expenses/get-all?page=0',{headers:{"authorization":token}})
         .then((res)=>{
-            //console.log(res);
+            console.log(res);
             const list = res.data.data;
             adding_to_page(list);
             prev.disabled=!res.data.prev;
             next.disabled=!res.data.next;
+            document.getElementById('curr_page').value =0;
         })
         .catch(err => console.log(err));
     };
@@ -367,17 +375,18 @@ function display_daily_expenses(){
         expenses_parent.innerHTML ='';
 
         list.forEach(expense =>{
-            const date = expense.createdAt.toString().slice(0,10);
+            const date = expense.ExpenseId.Date.slice(0,10);
             //console.log(date);
             const ele=`
             <div class="expense" id=${expense.id}>
                 <p>${date}</p>
-                <p>${expense.event}</p>
-                <p>${expense.price}</p>
+                <p>${expense.ExpenseId.event}</p>
+                <p>${expense.ExpenseId.price}</p>
                 <button type="button" id="remove">-</button>
             </div>`
             expenses_parent.innerHTML += ele;
         })
+       
     }
         
     // when user click on expense element, that expense will be deleted 
@@ -396,7 +405,7 @@ function display_daily_expenses(){
     // when the use clicked on next or previous buttons, pages will be changed
 
     // listening the next and previous btn action from pagination div block
-    document.getElementById('pagination').addEventListener('click',(e)=>{
+    document.getElementById('pagination').addEventListener('click', (e)=>{
 
         //console.log(curr_page-1)
         const token = localStorage.getItem('token');
@@ -407,7 +416,7 @@ function display_daily_expenses(){
             const curr_page = Number(document.getElementById('curr_page').value);
 
             // calling backend for previous page, if prev btn is active 
-            axios.get(`http://13.233.252.66/expenses/get-all?page=${curr_page-1}`,{headers:{"authorization":token}})
+            axios.get(`http://localhost:4000/expenses/get-all?page=${curr_page-1}`,{headers:{"authorization":token}})
             .then((res)=>{
                 adding_to_page(res.data.data);
                 prev.disabled=!res.data.prev;
@@ -425,7 +434,7 @@ function display_daily_expenses(){
 
             const curr_page = Number(document.getElementById('curr_page').value);
 
-            axios.get(`http://13.233.252.66/expenses/get-all?page=${curr_page+1}`,{headers:{"authorization":token}})
+            axios.get(`http://localhost:4000/expenses/get-all?page=${curr_page+1}`,{headers:{"authorization":token}})
             .then((res)=>{
                 adding_to_page(res.data.data);
                 prev.disabled=!res.data.prev;
@@ -444,15 +453,16 @@ function display_leadership_board(){
     const leadership_container = document.getElementById('leadership_container');
     leadership_container.innerHTML='';
     const token = localStorage.getItem('token');
-    axios.get('http://13.233.252.66/getLeadership',{headers:{"authorization":token}})
+    axios.get('http://localhost:4000/getLeadership',{headers:{"authorization":token}})
     .then((result)=>{
-        //console.log(result);
+        console.log(result);
+        console.log(result.data.data[0]._id)
         const length = result.data.data.length;
         result.data.data.forEach((user,index)=>{
             const ele =`
-            <div class="members" id=${user.id}>
+            <div class="members" id=${user._id}>
                 <p>${user.name}</p>
-                <p id=${user.id}_expense></p>
+                <p id=${user._id}_expense></p>
                 <p>${index+1}/${length}</p>
             </div>`
             leadership_container.innerHTML+= ele;
@@ -488,10 +498,10 @@ all_users.addEventListener('click',(event)=>{
 
     //get the selected user expense from backend
     const token = localStorage.getItem('token');
-    axios.get(`http://13.233.252.66/get_user/${target_ele}`,{headers:{"authorization":token}})
+    axios.get(`http://localhost:4000/get_user/${target_ele}`,{headers:{"authorization":token}})
     .then(result =>{
-        //console.log(result)
-        expense_ele.innerText=result.data.expense;
+        console.log(result)
+        expense_ele.innerText=result.data.TotalExpense;
         setTimeout(()=>{
             expense_ele.innerText='';
         },3000)
@@ -519,7 +529,7 @@ document.getElementById('add_expenses_btn').addEventListener('click',(e)=>{
         const token = localStorage.getItem('token');
         console.log(token)
         // send this data to backend
-        axios.post(`http://13.233.252.66/expenses/add`,obj,{headers:{"authorization":token} })
+        axios.post(`http://localhost:4000/expenses/add`,obj,{headers:{"authorization":token} })
         .then(result =>{
             window.alert(result.data.msg)
         })
@@ -535,11 +545,11 @@ document.getElementById('add_expenses_btn').addEventListener('click',(e)=>{
 // delete expenses from server
 async function deleteExpense(id){
     const token = localStorage.getItem('token');
-    await axios.post(`http://13.233.252.66/expenses/delete`,{id:id},{headers:{"authorization":token} })
+    await axios.post(`http://localhost:4000/expenses/delete`,{id:id},{headers:{"authorization":token} })
     .then(result=>{
         //console.log(result);
         window.alert('successfully deleted the expense')
-    })
+    })  
     .catch(err => console.log(err));
 }
 
@@ -551,7 +561,7 @@ document.getElementById('pay_btn').onclick = async function(e){
     const token = localStorage.getItem('token');
     console.log(token);
     let response;
-    await axios.get(`http://13.233.252.66/purchase/membership`,{headers:{"authorization":token}})
+    await axios.get(`http://localhost:4000/purchase/membership`,{headers:{"authorization":token}})
     .then(res=> response=res)
     .catch(err => console.log(err));    
     console.log(response);
@@ -577,7 +587,7 @@ document.getElementById('pay_btn').onclick = async function(e){
             alert(pymnt_success.razorpay_signature);
 
             // posting the payment id in server
-            axios.post('http://13.233.252.66/purchase/membershipStatus',{
+            axios.post('http://localhost:4000/purchase/membershipStatus',{
                 orderId:options.order_id,
                 payment_id: pymnt_success.razorpay_payment_id
             },{
